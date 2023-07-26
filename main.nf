@@ -15,7 +15,10 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.fasta     = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.fai       = WorkflowMain.getGenomeAttribute(params, 'fai')
+params.dict      = WorkflowMain.getGenomeAttribute(params, 'dict')
+params.intervals = WorkflowMain.getGenomeAttribute(params, 'intervals')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +55,7 @@ include { CREATEPANELOFNORMALS } from './workflows/createpanelofnormals'
 //
 // WORKFLOW: Run main nf-core/createpanelofnormals analysis pipeline
 //
-workflow NFCORE_CREATEPANELOFNORMALS {
+workflow QBICPIPELINES_CREATEPANELOFNORMALS {
     CREATEPANELOFNORMALS ()
 }
 
@@ -67,7 +70,7 @@ workflow NFCORE_CREATEPANELOFNORMALS {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    NFCORE_CREATEPANELOFNORMALS ()
+    QBICPIPELINES_CREATEPANELOFNORMALS ()
 }
 
 /*
