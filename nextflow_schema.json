@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/createpanelofnormals/master/nextflow_schema.json",
-    "title": "nf-core/createpanelofnormals pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/qbic-pipelines/createpanelofnormals/master/nextflow_schema.json",
+    "title": "qbic-pipelines/createpanelofnormals pipeline parameters",
     "description": "Creates a panel of normals for Mutect2 based on CRAM input files",
     "type": "object",
     "definitions": {

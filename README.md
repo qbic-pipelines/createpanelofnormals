@@ -1,4 +1,4 @@
-# ![nf-core/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_light.png#gh-light-mode-only) ![nf-core/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_dark.png#gh-dark-mode-only)
+# ![qbic-pipelines/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_light.png#gh-light-mode-only) ![qbic-pipelines/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_dark.png#gh-dark-mode-only)
 
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/createpanelofnormals/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
@@ -12,20 +12,12 @@
 
 ## Introduction
 
-**nf-core/createpanelofnormals** is a bioinformatics pipeline that ...
+**qbic-pipelines/createpanelofnormals** is a bioinformatics pipeline for creating a panel of normals for Mutect2 following these [instructions](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-).
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Variant calling on normal samples with  ([`GATK4 Mutect2`](https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2))
+2. Create [GenomicsDB](https://gatk.broadinstitute.org/hc/en-us/articles/13832686645787-GenomicsDBImport)
+3. Combine normal calls with [CreateSomaticPanelOfNormals](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-)
+3. Present versions in ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
@@ -34,28 +26,23 @@
 > to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
 > with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,cram,crai
+sample1,test.cram,test.cram.crai
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+Each row represents one sample.
 
 Now, you can run the pipeline using:
 
 <!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
-nextflow run nf-core/createpanelofnormals \
+nextflow run qbic-pipelines/createpanelofnormals \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
@@ -66,38 +53,33 @@ nextflow run nf-core/createpanelofnormals \
 > provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/createpanelofnormals/usage) and the [parameter documentation](https://nf-co.re/createpanelofnormals/parameters).
+For more details and further functionality, please refer to the [usage documentation](./docs/usage.md) and the [parameter documentation](./nextflow_schema.json). You can list all parameters by running `nextflow run qbic-pipelines/createpanelofnormals --help`.
 
 ## Pipeline output
 
-To see the results of an example test run with a full size dataset refer to the [results](https://nf-co.re/createpanelofnormals/results) tab on the nf-core website pipeline page.
 For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/createpanelofnormals/output).
+[output documentation](./docs/output.md).
 
 ## Credits
 
-nf-core/createpanelofnormals was originally written by FriederikeHanssen.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+qbic-pipelines/createpanelofnormals was originally written by @FriederikeHanssen.
 
 ## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
-For further information or help, don't hesitate to get in touch on the [Slack `#createpanelofnormals` channel](https://nfcore.slack.com/channels/createpanelofnormals) (you can join with [this invite](https://nf-co.re/join/slack)).
+For further information or help, don't hesitate to get in touch by opening an [issue](https://github.com/qbic-pipelines/createpanelofnormals).
 
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  nf-core/createpanelofnormals for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+If you use  qbic-pipelines/createpanelofnormals for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX)
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
-You can cite the `nf-core` publication as follows:
+The pipeline is currently maintained at QBiC. It was created using the nf-core template and integrates their institutional profiles as well as many other resources. If you use this pipeline, please cite them as follows:
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
 >

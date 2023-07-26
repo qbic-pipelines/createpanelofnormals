@@ -1,22 +1,20 @@
-# nf-core/createpanelofnormals: Contributing Guidelines
+# qbic-pipelines/createpanelofnormals: Contributing Guidelines
 
 Hi there!
-Many thanks for taking an interest in improving nf-core/createpanelofnormals.
+Many thanks for taking an interest in improving qbic-pipelines/createpanelofnormals.
 
-We try to manage the required tasks for nf-core/createpanelofnormals using GitHub issues, you probably came to this page when creating one.
+We try to manage the required tasks for qbic-pipelines/createpanelofnormals using GitHub issues, you probably came to this page when creating one.
 Please use the pre-filled template to save time.
 
 However, don't be put off by this template - other more general issues and suggestions are welcome!
 Contributions to the code are even more welcome ;)
 
-> If you need help using or modifying nf-core/createpanelofnormals then the best place to ask is on the nf-core Slack [#createpanelofnormals](https://nfcore.slack.com/channels/createpanelofnormals) channel ([join our Slack here](https://nf-co.re/join/slack)).
-
 ## Contribution workflow
 
-If you'd like to write some code for nf-core/createpanelofnormals, the standard workflow is as follows:
+If you'd like to write some code for qbic-pipelines/createpanelofnormals, the standard workflow is as follows:
 
-1. Check that there isn't already an issue about your idea in the [nf-core/createpanelofnormals issues](https://github.com/nf-core/createpanelofnormals/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
-2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [nf-core/createpanelofnormals repository](https://github.com/nf-core/createpanelofnormals) to your GitHub account
+1. Check that there isn't already an issue about your idea in the [qbic-pipelines/createpanelofnormals issues](https://github.com/qbic-pipelines/createpanelofnormals/issues) to avoid duplicating work. If there isn't one already, please create one so that others know you're working on this
+2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [qbic-pipelines/createpanelofnormals repository](https://github.com/qbic-pipelines/createpanelofnormals) to your GitHub account
 3. Make the necessary changes / additions within your forked repository following [Pipeline conventions](#pipeline-contribution-conventions)
 4. Use `nf-core schema build` and add any new parameters to the pipeline JSON schema (requires [nf-core tools](https://github.com/nf-core/tools) >= 1.10).
 5. Submit a Pull Request against the `dev` branch and wait for the code to be reviewed and merged
@@ -54,7 +52,7 @@ These tests are run both with the latest available version of `Nextflow` and als
 
 ## Getting help
 
-For further information/help, please consult the [nf-core/createpanelofnormals documentation](https://nf-co.re/createpanelofnormals/usage) and don't hesitate to get in touch on the nf-core Slack [#createpanelofnormals](https://nfcore.slack.com/channels/createpanelofnormals) channel ([join our Slack here](https://nf-co.re/join/slack)).
+For further information/help, please consult the qbic-pipelines/createpanelofnormals documentation and don't hesitate to get in touch.
 
 ## Pipeline contribution conventions
 
@@ -108,7 +106,7 @@ This repo includes a devcontainer configuration which will create a GitHub Codes
 
 To get started:
 
-- Open the repo in [Codespaces](https://github.com/nf-core/createpanelofnormals/codespaces)
+- Open the repo in [Codespaces](https://github.com/qbic-pipelines/createpanelofnormals/codespaces)
 - Tools installed
   - nf-core
   - Nextflow

@@ -1,6 +1,6 @@
 {
-    "name": "nf-core/createpanelofnormals",
-    "homePage": "https://github.com/nf-core/createpanelofnormals",
+    "name": "qbic-pipelines/createpanelofnormals",
+    "homePage": "https://github.com/qbic-pipelines/createpanelofnormals",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

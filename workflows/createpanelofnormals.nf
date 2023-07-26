@@ -66,7 +66,11 @@ workflow CREATEPANELOFNORMALS {
 
     ch_versions = Channel.empty()
 
-    input       = Channel.fromSamplesheet("input").map{ meta, cram, crai -> [[id: meta.sample], cram, crai]}
+    input       = Channel.fromSamplesheet("input")
+                            .map{ meta, cram, crai ->
+                                [[id: meta.sample], cram, crai]
+                            }
+
     fasta       = params.fasta     ? Channel.fromPath(params.fasta).first()     : Channel.empty()
     fai         = params.fai       ? Channel.fromPath(params.fai).first()       : Channel.empty()
     dict        = params.dict      ? Channel.fromPath(params.dict).first()      : Channel.empty()

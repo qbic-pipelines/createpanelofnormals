@@ -1,11 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/createpanelofnormals
+    qbic-pipelines/createpanelofnormals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/createpanelofnormals
-    Website: https://nf-co.re/createpanelofnormals
-    Slack  : https://nfcore.slack.com/channels/createpanelofnormals
+    Github : https://github.com/qbic-pipelines/createpanelofnormals
 ----------------------------------------------------------------------------------------
 */
 
