@@ -15,6 +15,21 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCreatepanelofnormals.initialise(params, log)
 
+// Check input path parameters to see if they exist
+def checkPathParamList = [
+    params.dict,
+    params.fasta,
+    params.fasta_fai,
+    params.intervals,
+]
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Check mandatory parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+for (param in checkPathParamList) if (param) file(param, checkIfExists: true)
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -55,12 +70,8 @@ workflow CREATEPANELOFNORMALS {
     ch_versions = Channel.empty()
 
     input       = Channel.fromSamplesheet("input")
-                            .map{ meta, cram, crai ->
-                                [[id: meta.sample], cram, crai]
-                            }
-
     fasta       = params.fasta     ? Channel.fromPath(params.fasta).first()     : Channel.empty()
-    fai         = params.fai       ? Channel.fromPath(params.fai).first()       : Channel.empty()
+    fai         = params.fasta_fai ? Channel.fromPath(params.fasta_fai).first()       : Channel.empty()
     dict        = params.dict      ? Channel.fromPath(params.dict).first()      : Channel.empty()
     intervals   = params.intervals ? Channel.fromPath(params.intervals).first() : Channel.empty()
 

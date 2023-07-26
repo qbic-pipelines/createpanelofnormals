@@ -11,7 +11,7 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample ID must be provided and cannot contain spaces",
-                "meta": ["sample"]
+                "meta": ["id"]
             },
             "cram": {
                 "errorMessage": "CRAM file cannot contain spaces and must have extension '.cram'",
