@@ -46,9 +46,12 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { GATK4_CREATESOMATICPANELOFNORMALS } from '../modules/nf-core/gatk4/createsomaticpanelofnormals/main'
+include { GATK4_GENOMICSDBIMPORT            } from '../modules/nf-core/gatk4/genomicsdbimport/main'
+include { GATK4_MERGEVCFS                   } from '../modules/nf-core/gatk4/mergevcfs/main'
+include { GATK4_MUTECT2                     } from '../modules/nf-core/gatk4/mutect2/main'
+include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,24 +66,54 @@ workflow CREATEPANELOFNORMALS {
 
     ch_versions = Channel.empty()
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
-    // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
-    // ! There is currently no tooling to help you write a sample sheet schema
+    input       = Channel.fromSamplesheet("input")
+    input.view()
+    fasta       = params.fasta     ? Channel.fromPath(params.fasta).first()      : Channel.empty()
+    fai         = params.fai       ? Channel.fromPath(params.fai).first()        : Channel.empty()
+    dict        = params.dict      ? Channel.fromPath(params.dict).first()       : Channel.empty()
+    intervals   = params.intervals ? Channel.fromPath(params.intervals).first()  : Channel.empty()
 
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    // // Combine input and intervals for spread and gather strategy
+    // input_intervals = input.combine(intervals)
+    //     // Move num_intervals to meta map and reorganize channel for MUTECT2_PAIRED module
+    //     .map{ meta, input_list, input_index_list, intervals, num_intervals -> [ meta + [ num_intervals:num_intervals ], input_list, input_index_list, intervals ] }
+
+    // GATK4_MUTECT2(input,
+    //             fasta,
+    //             fai,
+    //             dict,
+    //             [],[],[],[])
+
+    // ch_versions = ch_versions.mix(GATK4_MUTECT2.out.versions)
+
+    // // Figuring out if there is one or more vcf(s) from the same sample
+    // vcf_branch = GATK4_MUTECT2.out.vcf.branch{
+    //     // Use meta.num_intervals to asses number of intervals
+    //     intervals:    it[0].num_intervals > 1
+    //     no_intervals: it[0].num_intervals <= 1
+    // }
+
+    // // Figuring out if there is one or more tbi(s) from the same sample
+    // tbi_branch = GATK4_MUTECT2.out.tbi.branch{
+    //     // Use meta.num_intervals to asses number of intervals
+    //     intervals:    it[0].num_intervals > 1
+    //     no_intervals: it[0].num_intervals <= 1
+    // }
+
+    // // Only when using intervals
+    // vcf_to_merge = vcf_branch.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ] }
+    //                                     .groupTuple()
+    // GATK4_MERGEVCFS(vcf_to_merge, dict)
+
+    // // Mix intervals and no_intervals channels together and remove no longer necessary field: normal_id, tumor_id, num_intervals
+    // vcf = Channel.empty().mix(GATK4_MERGEVCFS.out.vcf, vcf_branch.no_intervals)
+    // tbi = Channel.empty().mix(GATK4_MERGEVCFS.out.tbi, tbi_branch.no_intervals)
+
+
+    // GATK4_GENOMICSDBIMPORT(vcfs_out,
+    //                         [],
+    //                         [],
+    //                         [])
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -99,7 +132,6 @@ workflow CREATEPANELOFNORMALS {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect(),
