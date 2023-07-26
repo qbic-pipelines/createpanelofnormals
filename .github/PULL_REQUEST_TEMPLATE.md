@@ -1,7 +1,7 @@
 <!--
 # qbic-pipelines/createpanelofnormals pull request
 
-Many thanks for contributing to nqbic-pipelines/createpanelofnormals!
+Many thanks for contributing to qbic-pipelines/createpanelofnormals!
 
 Please fill in the appropriate checklist below (delete whatever is not relevant).
 These are the most common things requested on pull requests (PRs).
