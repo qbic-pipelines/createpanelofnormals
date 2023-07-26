@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
+include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
 def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
@@ -28,17 +28,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT LOCAL MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
-//
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -46,9 +35,11 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { GATK4_CREATESOMATICPANELOFNORMALS } from '../modules/nf-core/gatk4/createsomaticpanelofnormals/main'
+include { GATK4_GENOMICSDBIMPORT            } from '../modules/nf-core/gatk4/genomicsdbimport/main'
+include { GATK4_MUTECT2                     } from '../modules/nf-core/gatk4/mutect2/main'
+include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,24 +54,49 @@ workflow CREATEPANELOFNORMALS {
 
     ch_versions = Channel.empty()
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-    // TODO: OPTIONAL, you can use nf-validation plugin to create an input channel from the samplesheet with Channel.fromSamplesheet("input")
-    // See the documentation https://nextflow-io.github.io/nf-validation/samplesheets/fromSamplesheet/
-    // ! There is currently no tooling to help you write a sample sheet schema
+    input       = Channel.fromSamplesheet("input")
+                            .map{ meta, cram, crai ->
+                                [[id: meta.sample], cram, crai]
+                            }
 
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    fasta       = params.fasta     ? Channel.fromPath(params.fasta).first()     : Channel.empty()
+    fai         = params.fai       ? Channel.fromPath(params.fai).first()       : Channel.empty()
+    dict        = params.dict      ? Channel.fromPath(params.dict).first()      : Channel.empty()
+    intervals   = params.intervals ? Channel.fromPath(params.intervals).first() : Channel.empty()
+
+    fasta = fasta.map{ it -> [[id:it.baseName], it]}
+    fai   = fai.map{ it -> [[id:it.baseName], it]}
+    dict  = dict.map{ it -> [[id:it.baseName], it]}
+
+    // // Combine input and intervals for spread and gather strategy
+    input_intervals = input.combine(intervals)
+        // Move num_intervals to meta map and reorganize channel for MUTECT2_PAIRED module
+        .map{ meta, input_list, input_index_list, intervals -> [ meta + [ num_intervals:0 ], input_list, input_index_list, intervals ] }
+
+    GATK4_MUTECT2(input_intervals,
+                fasta,
+                fai,
+                dict,
+                [],[],[],[])
+
+    ch_versions = ch_versions.mix(GATK4_MUTECT2.out.versions)
+
+    ch_genomicsdb_input = GATK4_MUTECT2.out.vcf.join(GATK4_MUTECT2.out.tbi)
+                            .combine(intervals)
+                            .map{ meta, vcf, tbi, intervals ->
+                                [meta, vcf, tbi, intervals, [], []]
+                            }
+    GATK4_GENOMICSDBIMPORT(ch_genomicsdb_input,
+                            [],
+                            [],
+                            [])
+    ch_versions = ch_versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
+
+    GATK4_CREATESOMATICPANELOFNORMALS(GATK4_GENOMICSDBIMPORT.out.genomicsdb,
+                                        fasta,
+                                        fai,
+                                        dict)
+    ch_versions = ch_versions.mix(GATK4_CREATESOMATICPANELOFNORMALS.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -99,7 +115,6 @@ workflow CREATEPANELOFNORMALS {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
 
     MULTIQC (
         ch_multiqc_files.collect(),
