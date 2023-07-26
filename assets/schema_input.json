@@ -42,36 +42,6 @@
                 ],
                 "format": "file-path",
                 "exists": true
-            },
-            "bam": {
-                "errorMessage": "BAM file cannot contain spaces and must have extension '.bam'",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.bam$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ],
-                "format": "file-path",
-                "exists": true
-            },
-            "bai": {
-                "errorMessage": "BAM index file cannot contain spaces and must have extension '.bai'",
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "pattern": "^\\S+\\.bai$"
-                    },
-                    {
-                        "type": "string",
-                        "maxLength": 0
-                    }
-                ],
-                "format": "file-path",
-                "exists": true
             }
         }
     }
