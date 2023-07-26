@@ -107,6 +107,13 @@
                     "fa_icon": "fas fa-file-alt",
                     "help_text": "",
                     "description": "Path to target bed file in case of whole exome or targeted sequencing or intervals file."
+                },
+                "nucleotides_per_second": {
+                    "type": "number",
+                    "fa_icon": "fas fa-clock",
+                    "description": "Estimate interval size.",
+                    "help_text": "Intervals are parts of the chopped up genome used to speed up preprocessing and variant calling. See `--intervals` for more info. \n\nChanging this parameter, changes the number of intervals that are grouped and processed together. Bed files from target sequencing can contain thousands or small intervals. Spinning up a new process for each can be quite resource intensive. Instead it can be desired to process small intervals together on larger nodes. \nIn order to make use of this parameter, no runtime estimate can be present in the bed file (column 5). ",
+                    "default": 200000
                 }
             }
         },
