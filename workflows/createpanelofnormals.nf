@@ -48,7 +48,6 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 include { GATK4_CREATESOMATICPANELOFNORMALS } from '../modules/nf-core/gatk4/createsomaticpanelofnormals/main'
 include { GATK4_GENOMICSDBIMPORT            } from '../modules/nf-core/gatk4/genomicsdbimport/main'
-include { GATK4_MERGEVCFS                   } from '../modules/nf-core/gatk4/mergevcfs/main'
 include { GATK4_MUTECT2                     } from '../modules/nf-core/gatk4/mutect2/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
@@ -92,29 +91,6 @@ workflow CREATEPANELOFNORMALS {
                 [],[],[],[])
 
     ch_versions = ch_versions.mix(GATK4_MUTECT2.out.versions)
-
-    // // Figuring out if there is one or more vcf(s) from the same sample
-    // vcf_branch = GATK4_MUTECT2.out.vcf.branch{
-    //     // Use meta.num_intervals to asses number of intervals
-    //     intervals:    it[0].num_intervals > 1
-    //     no_intervals: it[0].num_intervals <= 1
-    // }
-
-    // // Figuring out if there is one or more tbi(s) from the same sample
-    // tbi_branch = GATK4_MUTECT2.out.tbi.branch{
-    //     // Use meta.num_intervals to asses number of intervals
-    //     intervals:    it[0].num_intervals > 1
-    //     no_intervals: it[0].num_intervals <= 1
-    // }
-
-    // // Only when using intervals
-    // vcf_to_merge = vcf_branch.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ] }
-    //                                     .groupTuple()
-    // GATK4_MERGEVCFS(vcf_to_merge, dict)
-
-    // // Mix intervals and no_intervals channels together and remove no longer necessary field: normal_id, tumor_id, num_intervals
-    // vcf = Channel.empty().mix(GATK4_MERGEVCFS.out.vcf, vcf_branch.no_intervals)
-    // tbi = Channel.empty().mix(GATK4_MERGEVCFS.out.tbi, tbi_branch.no_intervals)
 
     ch_genomicsdb_input = GATK4_MUTECT2.out.vcf.join(GATK4_MUTECT2.out.tbi)
                             .combine(intervals)
