@@ -24,7 +24,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - `mutect2/${sample}`
   - `*.vcf.gz`: Variant calling results
   - `*.vcf.gz.tbi`: Index matching the vcf file
-  - `*.vcf.gz.stats`: Mutect2 stats results
 
 </details>
 
