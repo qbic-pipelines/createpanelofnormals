@@ -5,6 +5,12 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "cnvkit/batch": {
+                        "branch": "master",
+                        "git_sha": "3b63e1df297ef474b0070aa5fabb30d732173671",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/cnvkit/batch/cnvkit-batch.diff"
+                    },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
                         "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
