@@ -36,9 +36,9 @@ process CNVKIT_BATCH {
     normal_args = "--normal $pon_input"
 
     def versions =
-        //"samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')\n        cnvkit: \$(cnvkit.py version | sed -e 's/cnvkit v//g')" :
         "cnvkit: \$(cnvkit.py version | sed -e 's/cnvkit v//g')"
     """
+
     cnvkit.py \\
         batch \\
         $normal_args \\
