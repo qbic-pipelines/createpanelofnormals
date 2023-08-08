@@ -152,7 +152,7 @@ workflow CREATEPANELOFNORMALS {
 
     if(params.tools && params.tools.split(',').contains('cnvkit')){
 
-        pooled_normal = input.map{meta, cram, crai -> [[id:"normal"], cram]}
+        pooled_normal = input.map{meta, cram, crai -> [[id:"reference"], cram]}
                             .groupTuple()
 
         CNVKIT_BATCH(pooled_normal, fasta, intervals_all)
