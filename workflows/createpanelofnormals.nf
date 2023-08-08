@@ -154,7 +154,6 @@ workflow CREATEPANELOFNORMALS {
 
         pooled_normal = input.map{meta, cram, crai -> [[id:"normal"], cram]}
                             .groupTuple()
-        pooled_normal.view()
 
         CNVKIT_BATCH(pooled_normal, fasta, intervals_all)
 
