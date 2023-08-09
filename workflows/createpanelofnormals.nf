@@ -30,6 +30,12 @@ def checkPathParamList = [
 */
 for (param in checkPathParamList) if (param) file(param, checkIfExists: true)
 
+if(params.tools && params.tools.split(',').contains("cnvkit")){
+    if(!params.sequencing_method){
+        error("--sequencing_method is required for CNVKit. See the CNVKit documentation for details.")
+    }
+}
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -50,6 +56,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // MODULE: Installed directly from nf-core/modules
 //
+include { CNVKIT_BATCH                      } from '../modules/nf-core/cnvkit/batch/main'
 include { GATK4_CREATESOMATICPANELOFNORMALS } from '../modules/nf-core/gatk4/createsomaticpanelofnormals/main'
 include { GATK4_GENOMICSDBIMPORT            } from '../modules/nf-core/gatk4/genomicsdbimport/main'
 include { GATK4_MERGEVCFS                   } from '../modules/nf-core/gatk4/mergevcfs/main'
@@ -71,73 +78,89 @@ workflow CREATEPANELOFNORMALS {
 
     ch_versions = Channel.empty()
 
-    input       = Channel.fromSamplesheet("input")
-    fasta       = params.fasta     ? Channel.fromPath(params.fasta).first()     : Channel.empty()
-    fai         = params.fasta_fai ? Channel.fromPath(params.fasta_fai).first() : Channel.empty()
-    dict        = params.dict      ? Channel.fromPath(params.dict).first()      : Channel.empty()
-    intervals_test   = params.intervals ? Channel.fromPath(params.intervals).first() : Channel.empty()
+    input         = Channel.fromSamplesheet("input")
+    fasta         = params.fasta     ? Channel.fromPath(params.fasta).first()     : Channel.empty()
+    fai           = params.fasta_fai ? Channel.fromPath(params.fasta_fai).first() : Channel.empty()
+    dict          = params.dict      ? Channel.fromPath(params.dict).first()      : Channel.empty()
+    intervals_all = params.intervals ? Channel.fromPath(params.intervals).first() : Channel.empty()
 
     fasta = fasta.map{ it -> [[id:it.baseName], it]}
     fai   = fai.map{ it -> [[id:it.baseName], it]}
     dict  = dict.map{ it -> [[id:it.baseName], it]}
 
-    PREPARE_INTERVALS(fai, params.intervals)
+    if(params.tools && params.tools.split(',').contains('mutect2')){
 
-    intervals = PREPARE_INTERVALS.out.intervals_bed
+        PREPARE_INTERVALS(fai, params.intervals)
 
-    // Combine input and intervals for spread and gather strategy
-    input_intervals = input.combine(intervals)
-        // Move num_intervals to meta map and reorganize channel for MUTECT2_PAIRED module
-        .map{ meta, input_list, input_index_list, intervals, num_intervals -> [ meta + [ num_intervals:num_intervals ], input_list, input_index_list, intervals ] }
+        intervals = PREPARE_INTERVALS.out.intervals_bed
 
-    GATK4_MUTECT2(input_intervals,
-                fasta,
-                fai,
-                dict,
-                [],[],[],[])
+        // Combine input and intervals for spread and gather strategy
+        input_intervals = input.combine(intervals)
+            // Move num_intervals to meta map and reorganize channel for MUTECT2_PAIRED module
+            .map{ meta, input_list, input_index_list, intervals, num_intervals -> [ meta + [ num_intervals:num_intervals ], input_list, input_index_list, intervals ] }
 
-    ch_versions = ch_versions.mix(GATK4_MUTECT2.out.versions)
+        GATK4_MUTECT2(input_intervals,
+                    fasta,
+                    fai,
+                    dict,
+                    [],[],[],[])
 
-    // Figuring out if there is one or more vcf(s) from the same sample
-    vcf_branch = GATK4_MUTECT2.out.vcf.branch{
-        // Use meta.num_intervals to asses number of intervals
-        intervals:    it[0].num_intervals > 1
-        no_intervals: it[0].num_intervals <= 1
+        ch_versions = ch_versions.mix(GATK4_MUTECT2.out.versions)
+
+        // Figuring out if there is one or more vcf(s) from the same sample
+        vcf_branch = GATK4_MUTECT2.out.vcf.branch{
+            // Use meta.num_intervals to asses number of intervals
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }
+
+        // Figuring out if there is one or more tbi(s) from the same sample
+        tbi_branch = GATK4_MUTECT2.out.tbi.branch{
+            // Use meta.num_intervals to asses number of intervals
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }
+
+        vcf_to_merge = vcf_branch.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ] }
+                                        .groupTuple()
+        GATK4_MERGEVCFS(vcf_to_merge, dict)
+        ch_versions = ch_versions.mix(GATK4_MERGEVCFS.out.versions)
+
+        vcf = Channel.empty().mix(GATK4_MERGEVCFS.out.vcf, vcf_branch.no_intervals)
+        tbi = Channel.empty().mix(GATK4_MERGEVCFS.out.tbi, tbi_branch.no_intervals)
+
+        vcf_joint = vcf.map{ meta, vcf -> [[id: 'joint'], vcf]}.groupTuple()
+        tbi_joint = tbi.map{ meta, tbi -> [[id: 'joint'], tbi]}.groupTuple()
+
+        ch_genomicsdb_input = vcf_joint.join(tbi_joint).combine(intervals_all)
+                                        .map{ meta, vcf, tbi, intervals ->
+                                            [meta, vcf, tbi, intervals, [], []]
+                                        }
+
+        GATK4_GENOMICSDBIMPORT(ch_genomicsdb_input,
+                                [],
+                                [],
+                                [])
+        ch_versions = ch_versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
+
+        GATK4_CREATESOMATICPANELOFNORMALS(GATK4_GENOMICSDBIMPORT.out.genomicsdb,
+                                            fasta,
+                                            fai,
+                                            dict)
+        ch_versions = ch_versions.mix(GATK4_CREATESOMATICPANELOFNORMALS.out.versions)
     }
 
-    // Figuring out if there is one or more tbi(s) from the same sample
-    tbi_branch = GATK4_MUTECT2.out.tbi.branch{
-        // Use meta.num_intervals to asses number of intervals
-        intervals:    it[0].num_intervals > 1
-        no_intervals: it[0].num_intervals <= 1
+    if(params.tools && params.tools.split(',').contains('cnvkit')){
+
+        pooled_normal = input.map{meta, cram, crai -> [[id:"reference"], cram]}
+                            .groupTuple()
+
+        CNVKIT_BATCH(pooled_normal, fasta, intervals_all)
+
+        ch_versions = ch_versions.mix(CNVKIT_BATCH.out.versions)
+
     }
 
-    vcf_to_merge = vcf_branch.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ] }.groupTuple()
-    GATK4_MERGEVCFS(vcf_to_merge, dict)
-    ch_versions = ch_versions.mix(GATK4_MERGEVCFS.out.versions)
-
-    vcf = Channel.empty().mix(GATK4_MERGEVCFS.out.vcf, vcf_branch.no_intervals)
-    tbi = Channel.empty().mix(GATK4_MERGEVCFS.out.tbi, tbi_branch.no_intervals)
-
-    vcf_joint = vcf.map{ meta, vcf -> [[id: 'joint'], vcf]}.groupTuple()
-    tbi_joint = tbi.map{ meta, tbi -> [[id: 'joint'], tbi]}.groupTuple()
-
-    ch_genomicsdb_input = vcf_joint.join(tbi_joint).combine(intervals_test)
-                                    .map{ meta, vcf, tbi, intervals ->
-                                        [meta, vcf, tbi, intervals, [], []]
-                                    }
-
-    GATK4_GENOMICSDBIMPORT(ch_genomicsdb_input,
-                            [],
-                            [],
-                            [])
-    ch_versions = ch_versions.mix(GATK4_GENOMICSDBIMPORT.out.versions)
-
-    GATK4_CREATESOMATICPANELOFNORMALS(GATK4_GENOMICSDBIMPORT.out.genomicsdb,
-                                        fasta,
-                                        fai,
-                                        dict)
-    ch_versions = ch_versions.mix(GATK4_CREATESOMATICPANELOFNORMALS.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
