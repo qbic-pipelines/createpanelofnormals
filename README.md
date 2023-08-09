@@ -1,6 +1,6 @@
-# ![qbic-pipelines/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_light.png#gh-light-mode-only) ![qbic-pipelines/createpanelofnormals](docs/images/nf-core-createpanelofnormals_logo_dark.png#gh-dark-mode-only)
+# ![qbic-pipelines/createpanelofnormals](docs/images/qbic-pipelines-createpanelofnormals_logo_light.png#gh-light-mode-only) ![qbic-pipelines/createpanelofnormals](docs/images/qbic-pipelines-createpanelofnormals_logo_dark.png#gh-dark-mode-only)
 
-[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/createpanelofnormals/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
@@ -10,12 +10,14 @@
 
 ## Introduction
 
-**qbic-pipelines/createpanelofnormals** is a bioinformatics pipeline for creating a panel of normals for Mutect2 following these [instructions](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-).
+**qbic-pipelines/createpanelofnormals** is a bioinformatics pipeline for creating a panel of normals for Mutect2 following these [instructions](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-) and CNVKit using `cnvkit batch`.
 
 1. Variant calling on normal samples with  ([`GATK4 Mutect2`](https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2))
 2. Create [GenomicsDB](https://gatk.broadinstitute.org/hc/en-us/articles/13832686645787-GenomicsDBImport)
 3. Combine normal calls with [CreateSomaticPanelOfNormals](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-)
-3. Present versions in ([`MultiQC`](http://multiqc.info/))
+4. Group all normal files and run [CNVKit batch](https://cnvkit.readthedocs.io/en/stable/pipeline.html#batch) with the parameters `-n`, `-t`, `-m`, and `-y ` if (`--assume_male` is set).
+> Disclaimer: not tested for panel or exome data. There might be need for more flags or input files.
+3. Collect versions in ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
@@ -44,6 +46,12 @@ nextflow run qbic-pipelines/createpanelofnormals \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
+```
+
+To get an overview over all avaialbel parameters, run:
+
+```bash
+nextflow run qbic-pipelines/createpanelofnormals --help
 ```
 
 > **Warning:**
@@ -77,7 +85,7 @@ If you use  qbic-pipelines/createpanelofnormals for your analysis, please cite i
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
-The pipeline is currently maintained at QBiC. It was created using the nf-core template and integrates their institutional profiles as well as many other resources. If you use this pipeline, please cite them as follows:
+The pipeline is currently maintained at QBiC and not an nf-core pipeline since it has not undergone nf-core community review. It was created using the nf-core template and integrates their institutional profiles as well as many other resources. If you use this pipeline, please cite them as follows:
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
 >
