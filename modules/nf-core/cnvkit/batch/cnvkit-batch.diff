@@ -24,7 +24,7 @@ Changes in module 'nf-core/cnvkit/batch'
  
 -    def tumor_exists = tumor ? true : false
 -    def normal_exists = normal ? true : false
-+    // PON needs --normal, target files if they exists
++    // PON needs --normal, target files if they exist
 +    fasta_args = fasta ? "--fasta ${fasta}" : ""
 +    target_args = targets ? "--targets ${targets}" : ""
  
