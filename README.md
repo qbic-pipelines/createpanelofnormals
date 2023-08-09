@@ -1,6 +1,6 @@
 # ![qbic-pipelines/createpanelofnormals](docs/images/qbic-pipelines-createpanelofnormals_logo_light.png#gh-light-mode-only) ![qbic-pipelines/createpanelofnormals](docs/images/qbic-pipelines-createpanelofnormals_logo_dark.png#gh-dark-mode-only)
 
-[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.671039381-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.671039381)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
@@ -78,8 +78,7 @@ For further information or help, don't hesitate to get in touch by opening an [i
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-If you use  qbic-pipelines/createpanelofnormals for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX)
+If you use  qbic-pipelines/createpanelofnormals for your analysis, please cite it using the following doi: [10.5281/zenodo.671039381](https://doi.org/10.5281/zenodo.671039381)
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
