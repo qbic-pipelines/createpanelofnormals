@@ -15,20 +15,11 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCreatepanelofnormals.initialise(params, log)
 
-// Check input path parameters to see if they exist
-def checkPathParamList = [
-    params.dict,
-    params.fasta,
-    params.fasta_fai,
-    params.intervals,
-]
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Check mandatory parameters
+    Check parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-for (param in checkPathParamList) if (param) file(param, checkIfExists: true)
 
 if(params.tools && params.tools.split(',').contains("cnvkit")){
     if(!params.sequencing_method){
