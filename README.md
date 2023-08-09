@@ -48,7 +48,7 @@ nextflow run qbic-pipelines/createpanelofnormals \
    --outdir <OUTDIR>
 ```
 
-To get an overview over all avaialbel parameters, run:
+To get an overview over all available parameters, run:
 
 ```bash
 nextflow run qbic-pipelines/createpanelofnormals --help
