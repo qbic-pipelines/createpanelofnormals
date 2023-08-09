@@ -53,7 +53,7 @@ WorkflowMain.initialise(workflow, params, log)
 include { CREATEPANELOFNORMALS } from './workflows/createpanelofnormals'
 
 //
-// WORKFLOW: Run main nf-core/createpanelofnormals analysis pipeline
+// WORKFLOW: Run main qbic-pipelines/createpanelofnormals analysis pipeline
 //
 workflow QBICPIPELINES_CREATEPANELOFNORMALS {
     CREATEPANELOFNORMALS ()
