@@ -59,7 +59,7 @@ nextflow run qbic-pipelines/createpanelofnormals --help
 > provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
 > see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
-For more details and further functionality, please refer to the [usage documentation](./docs/usage.md) and the [parameter documentation](./nextflow_schema.json). You can list all parameters by running `nextflow run qbic-pipelines/createpanelofnormals --help`.
+For more details and further functionality, please refer to the [usage documentation](./docs/usage.md) and the [parameter documentation](./nextflow_schema.json).
 
 ## Pipeline output
 
