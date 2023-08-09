@@ -42,9 +42,20 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <details markdown="1">
 <summary>Output files</summary>
 
-- `panelofnormals/`
+- `mutect2_panelofnormals/`
   - `*.vcf.gz`: Panel of normals
   - `*.vcf.gz.tbi`: Index matching the vcf file
+
+</details>
+
+### CNVKit
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `cnvkit/`
+  - `reference.cnn`: Reference "panel of normals",
+  - `${sample}.{anti,}target.cnn`: Target and antitagret  reference files
 
 </details>
 
