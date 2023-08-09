@@ -41,7 +41,7 @@ input:
   - reference:
       type: file
       description: |
-        Input reference cnn-file (only for germline and tumor-only running)
+        Input reference cnn-file (only for germline and tumor-only runs)
 output:
   - meta:
       type: map
