@@ -12,7 +12,7 @@
 
 **qbic-pipelines/createpanelofnormals** is a bioinformatics pipeline for creating a panel of normals for Mutect2 following these [instructions](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-) and CNVKit using `cnvkit batch`.
 
-1. Variant calling on normal samples with  ([`GATK4 Mutect2`](https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2))
+1. Variant calling on normal samples with ([`GATK4 Mutect2`](https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2))
 2. Create [GenomicsDB](https://gatk.broadinstitute.org/hc/en-us/articles/13832686645787-GenomicsDBImport)
 3. Combine normal calls with [CreateSomaticPanelOfNormals](https://gatk.broadinstitute.org/hc/en-us/articles/13832769396635-CreateSomaticPanelOfNormals-BETA-)
 4. Group all normal files and run [CNVKit batch](https://cnvkit.readthedocs.io/en/stable/pipeline.html#batch) with the parameters `-n`, `-t`, `-m`, and `-y ` if (`--assume_male` is set).
