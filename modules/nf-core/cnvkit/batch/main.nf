@@ -8,7 +8,7 @@ process CNVKIT_BATCH {
         'biocontainers/mulled-v2-780d630a9bb6a0ff2e7b6f730906fd703e40e98f:c94363856059151a2974dc501fb07a0360cc60a3-0' }"
 
     input:
-    tuple val(meta), path(normal)
+    tuple val(meta), path(normal), path(normal_index)
     tuple val(meta2), path(fasta)
     path  targets
 
