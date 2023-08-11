@@ -54,8 +54,8 @@ include { GATK4_MERGEVCFS                   } from '../modules/nf-core/gatk4/mer
 include { GATK4_MUTECT2                     } from '../modules/nf-core/gatk4/mutect2/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { PREPARE_INTERVALS                 } from '../subworkflows/local/prepare_intervals/main'
+include { SAMTOOLS_CONVERT                  } from '../modules/nf-core/samtools/convert/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -143,7 +143,10 @@ workflow CREATEPANELOFNORMALS {
 
     if(params.tools && params.tools.split(',').contains('cnvkit')){
 
-        pooled_normal = input.map{meta, cram, crai -> [[id:"reference"], cram]}
+        SAMTOOLS_CONVERT(input, fasta, fai)
+        ch_versions = ch_versions.mix(SAMTOOLS_CONVERT.out.versions)
+
+        pooled_normal = SAMTOOLS_CONVERT.out.alignment_index.map{meta, bam, bai -> [[id:"reference"], bam, bai]}
                             .groupTuple()
 
         CNVKIT_BATCH(pooled_normal, fasta, intervals_all)
